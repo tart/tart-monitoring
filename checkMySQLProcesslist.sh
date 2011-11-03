@@ -28,7 +28,7 @@ while getopts "H:P:u:p:" opt
 		        	exit 3
 		esac
 	done
-processlist=`mysql$connectionString --execute="Show processlist" mysql`
+processlist=$(mysql$connectionString --execute="Show processlist" mysql)
 
 criticalString=""
 warningString=""

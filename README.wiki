@@ -1,8 +1,8 @@
-## Usage:
+h1. Usage:
 
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password]
 
-## Description
+h1. Description
 
 Executes just one "Show processlist" query on the server.
 
