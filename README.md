@@ -7,11 +7,11 @@ h1. Description
 Executes just one "Show processlist" query on the server.
 
 <table >
-	<th >
-		<td >Counted Process'</td>
-		<td >Warning Limit</td>
-		<td >Critical Limit</td>
-	</th>
+	<tr >
+		<th >Counted Process'</th>
+		<th >Warning Limit</th>
+		<th >Critical Limit</th>
+	</tr>
 	<tr >
 		<td >All</td>
 		<td >144</td>
