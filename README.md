@@ -1,10 +1,20 @@
-h1. Usage:
+Script to monitor MySQL processlist
+
+## Usage
 
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password]
 
-h1. Description
+## Description
 
-Executes just one "Show processlist" query on the server.
+Executes just one "show processlist" query on the server. Parse the output.
+Gives values of the following. Exit with
+
+* 0 for ok
+* 1 for warning
+* 2 for critical
+* 3 for unknown
+
+if the following limits exceeded. Logs errors to /var/log/checkMySQLProcesslist.
 
 <table >
 	<tr >
@@ -28,18 +38,18 @@ Executes just one "Show processlist" query on the server.
 		<td >21</td>
 	</tr>
 	<tr >
-		<td >Queries runnig more than a minute</td>
+		<td >Queries running more than a minute</td>
 		<td >3</td>
 		<td >8</td>
 	</tr>
 	<tr >
-		<td >Queries runnig more than 10 minutes</td>
+		<td >Queries running more than 10 minutes</td>
 		<td >1</td>
 		<td >3</td>
 		<td ></td>
 	</tr>
 	<tr >
-		<td >Queries runnig more than a hour</td>
+		<td >Queries running more than a hour</td>
 		<td ></td>
 		<td >1</td>
 	</tr>
@@ -49,7 +59,7 @@ Executes just one "Show processlist" query on the server.
 		<td ></td>
 	</tr>
 	<tr >
-		<td >Quering</td>
+		<td >Querying</td>
 		<td ></td>
 		<td ></td>
 	</tr>
@@ -59,7 +69,7 @@ Executes just one "Show processlist" query on the server.
 		<td ></td>
 	</tr>
 	<tr >
-		<td >Quiting</td>
+		<td >Quitting</td>
 		<td ></td>
 		<td ></td>
 	</tr>
@@ -84,4 +94,3 @@ Executes just one "Show processlist" query on the server.
 		<td ></td>
 	</tr>
 </table>
-

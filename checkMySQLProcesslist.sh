@@ -3,156 +3,158 @@
  # Tart Database Operations
  # Check MySQL Processlist
  #
- # @author      Emre Hasegeli <emre.hasegeli@tart.com.tr>
- # @author      Mete Sıral <mete.siral@tart.com.tr>
- # @date        2011-11-03
+ # @author	Emre Hasegeli <emre.hasegeli@tart.com.tr>
+ # @author	Mete Sıral <mete.siral@tart.com.tr>
+ # @date	2011-11-03
  ##
 
-usage()
+scriptHelp()
 {
 	echo "Script to monitor MySQL processlist"
 	echo "Usage:"
 	echo $0" [-H hostname] [-P port] [-u username] [-p password]"
-        exit 3
+	echo "Source:"
+	echo "github.com/tart/CheckMySQLProcesslist"
 }
 
 connectionString=""
 while getopts "H:P:u:p:" opt
 	do
 		case $opt in
-		        H )	connectionString=$connectionString" --host=$OPTARG" ;;
-		        P )	connectionString=$connectionString" --port $OPTARG" ;;
-		        u )	connectionString=$connectionString" --user=$OPTARG" ;;
-		        p )	connectionString=$connectionString" --password=$OPTARG" ;;
-		        \?|h )	usage
-		        	exit 3
+			H )	connectionString="$connectionString --host=$OPTARG" ;;
+			P )	connectionString="$connectionString --port $OPTARG" ;;
+			u )	connectionString="$connectionString --user=$OPTARG" ;;
+			p )	connectionString="$connectionString --password=$OPTARG" ;;
+			\? )	scriptHelp
+				echo "MySQLProcesslist UNKNOWN wrongParameter"
+				exit 3
 		esac
 	done
-processlist=$(mysql$connectionString --execute="Show processlist" mysql)
-
-criticalString=""
-warningString=""
-performanceData=""
-
-total=$(echo "${processlist}"  | sed 1d | wc -l)
-if [ $total -gt 377 ]
+processlist=$(mysql$connectionString --execute="Show processlist" mysql 2>> /var/log/checkMySQLProcesslist)
+if [ ! "$processlist" ]
 	then
-	criticalString=$criticalString" connections="$total
-elif [ $total -gt 144 ]
+	echo "MySQLProcesslist UNKNOWN noProcesslist"
+	exit 3
+	fi
+
+total=$(echo "$processlist" | sed 1d | wc -l)
+if [ $total -ge 377 ]
 	then
-	warningString=$warningString" connections="$total
+	criticalString="$criticalString connections=$total"
+elif [ $total -ge 144 ]
+	then
+	warningString="$warningString connections=$total"
 fi
-performanceData=$performanceData" connections="$total";144;377"
+performanceData="$performanceData connections=$total;144;377"
 
-totalQuery=$(echo "${processlist}" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | wc -l)
-if [ $total -gt 55 ]
+totalQuery=$(echo "$processlist" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | wc -l)
+if [ $totalQuery -ge 55 ]
 	then
-	criticalString=$criticalString" queries="$totalQuery
-elif [ $total -gt 21 ]
+	criticalString="$criticalString queries=$totalQuery"
+elif [ $totalQuery -ge 21 ]
 	then
-	warningString=$warningString" queries="$totalQuery
+	warningString="$warningString queries=$totalQuery"
 fi
-performanceData=$performanceData" queries="$totalQuery";21;55"
+performanceData="$performanceData queries=$totalQuery;21;55"
 
 longQuery=0
-for time in $(echo "${processlist}" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
+for time in $(echo "$processlist" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
 	do
-	if [ $time -gt 10 ]
+	if [ $time -ge 10 ]
 		then
 		longQuery=$(expr $longQuery + 1)
 		fi
 	done
-if [ $longQuery -gt 21 ]
+if [ $longQuery -ge 21 ]
 	then
-	criticalString=$criticalString" queriesRunningMoreThan10Seconds="$longQuery
-elif [ $longQuery -gt 8 ]
+	criticalString="$criticalString queriesRunningMoreThan10Seconds=$longQuery"
+elif [ $longQuery -ge 8 ]
 	then
-	warningString=$warningString" queriesRunningMoreThan10Seconds="$longQuery
+	warningString="$warningString queriesRunningMoreThan10Seconds=$longQuery"
 fi
-performanceData=$performanceData" queriesRunningMoreThan10Seconds="$longQuery";8;21"
+performanceData="$performanceData queriesRunningMoreThan10Seconds=$longQuery;8;21"
 
 longQuery=0
-for time in $(echo "${processlist}" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
+for time in $(echo "$processlist" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
 	do
-	if [ $time -gt 60 ]
+	if [ $time -ge 60 ]
 		then
 		longQuery=$(expr $longQuery + 1)
 		fi
 	done
-if [ $longQuery -gt 8 ]
+if [ $longQuery -ge 8 ]
 	then
-	criticalString=$criticalString" queriesRunningMoreThanAMinute="$longQuery
-elif [ $longQuery -gt 3 ]
+	criticalString="$criticalString queriesRunningMoreThanAMinute=$longQuery"
+elif [ $longQuery -ge 3 ]
 	then
-	warningString=$warningString" queriesRunningMoreThanAMinute="$longQuery
+	warningString="$warningString queriesRunningMoreThanAMinute=$longQuery"
 fi
-performanceData=$performanceData" queriesRunningMoreThanAMinute="$longQuery";3;8"
+performanceData="$performanceData queriesRunningMoreThanAMinute=$longQuery;3;8"
 
 longQuery=0
-for time in $(echo "${processlist}" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
+for time in $(echo "$processlist" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
 	do
-	if [ $time -gt 600 ]
+	if [ $time -ge 600 ]
 		then
 		longQuery=$(expr $longQuery + 1)
 		fi
 	done
-if [ $longQuery -gt 3 ]
+if [ $longQuery -ge 3 ]
 	then
-	criticalString=$criticalString" queriesRunningMoreThan10Minutes="$longQuery
-elif [ $longQuery -gt 1 ]
+	criticalString="$criticalString queriesRunningMoreThan10Minutes=$longQuery"
+elif [ $longQuery -ge 1 ]
 	then
-	warningString=$warningString" queriesRunningMoreThan10Minutes="$longQuery
+	warningString="$warningString queriesRunningMoreThan10Minutes=$longQuery"
 fi
-performanceData=$performanceData" queriesRunningMoreThan10Minutes="$longQuery";3;8"
+performanceData="$performanceData queriesRunningMoreThan10Minutes=$longQuery;3;8"
 
 longQuery=0
-for time in $(echo "${processlist}" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
+for time in $(echo "$processlist" | sed 1d | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
 	do
-	if [ $time -gt 3600 ]
+	if [ $time -ge 3600 ]
 		then
 		longQuery=$(expr $longQuery + 1)
 		fi
 	done
-if [ $longQuery -gt 1 ]
+if [ $longQuery -ge 1 ]
 	then
-	criticalString=$criticalString" queriesRunningMoreThanAHour="$longQuery
+	criticalString="$criticalString queriesRunningMoreThanAHour=$longQuery"
 fi
-performanceData=$performanceData" queriesRunningMoreThanAHour="$longQuery";;1"
+performanceData="$performanceData queriesRunningMoreThanAHour=$longQuery;;1"
 
-query=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Query")
-performanceData=$performanceData" queringConnections="$query
+query=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Query")
+performanceData="$performanceData queringConnections=$query;;"
 
-connect=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Connect")
-performanceData=$performanceData" connectiongConnections="$connect
+connect=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Connect")
+performanceData="$performanceData connectiongConnections=$connect;;"
 
-quit=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Quit")
-performanceData=$performanceData" quitingConnections="$quit
+quit=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Quit")
+performanceData="$performanceData quitingConnections=$quit;;"
 
-prepare=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Prepare")
-performanceData=$performanceData" preparingConnections="$prepare
+prepare=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Prepare")
+performanceData="$performanceData preparingConnections=$prepare;;"
 
-fetch=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Fetch")
-performanceData=$performanceData" fetchingConnections="$fetch
+fetch=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Fetch")
+performanceData="$performanceData fetchingConnections=$fetch;;"
 
-execute=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Execute")
-performanceData=$performanceData" executingConnections="$execute
+execute=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Execute")
+performanceData="$performanceData executingConnections=$execute;;"
 
-sleep=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Sleep")
-performanceData=$performanceData" sleepingConnections="$sleep
+sleep=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Sleep")
+performanceData="$performanceData sleepingConnections=$sleep;;"
 
-delayedInsert=$(echo "${processlist}" | sed 1d | cut -f 5 | grep -c "Delayed insert")
-performanceData=$performanceData" delayedConnections="$delayedInsert
+delayedInsert=$(echo "$processlist" | sed 1d | cut -f 5 | grep -c "Delayed insert")
+performanceData="$performanceData delayedConnections=$delayedInsert;;"
 
-if [ ! $cricalString = "" ]
+if [ "$criticalString" ]
 	then
-	echo "MySQLProcesslist CRITICAL "$criticalString$warningString" |"$performanceData
+	echo "MySQLProcesslist CRITICAL$criticalString$warningString |$performanceData"
 	exit 2
 	fi
-if [ ! $warningString = "" ]
+if [ "$warningString" ]
 	then
-	echo "MySQLProcesslist WARNING "$warningString" |"$performanceData
+	echo "MySQLProcesslist WARNING$warningString |$performanceData"
 	exit 1
 	fi
-echo "MySQLProcesslist OK |"$performanceData
+echo "MySQLProcesslist OK |$performanceData"
 exit 0
-
