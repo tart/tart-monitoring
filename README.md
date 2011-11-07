@@ -1,4 +1,4 @@
-Script to monitor MySQL processlist
+CheckMySQLProcesslist a script to monitor MySQL processlist
 
 ## Usage
 
@@ -7,14 +7,19 @@ Script to monitor MySQL processlist
 ## Description
 
 Executes just one "show processlist" query on the server. Parse the output.
-Gives values of the following. Exit with
 
-* 0 for ok
-* 1 for warning
-* 2 for critical
-* 3 for unknown
+Gives
 
-if the following limits exceeded. Logs errors to /var/log/checkMySQLProcesslist.
+* all of the following values as performance data,
+* notifications if the following limits exceeded,
+* longest query information if it is running for 1 minute.
+
+Logs errors to /var/log/checkMySQLProcesslist. Exit with
+
+* 0 for ok,
+* 1 for warning,
+* 2 for critical,
+* 3 for unknown.
 
 <table >
 	<tr >
@@ -52,6 +57,11 @@ if the following limits exceeded. Logs errors to /var/log/checkMySQLProcesslist.
 		<td >Queries running more than an hour</td>
 		<td ></td>
 		<td >1</td>
+	</tr>
+	<tr >
+		<td >Longest query time</td>
+		<td ></td>
+		<td ></td>
 	</tr>
 	<tr >
 		<td >Sleeping</td>
