@@ -26,7 +26,8 @@ while getopts "H:P:u:p:h" opt 2>> /var/log/checkMySQLProcesslist
 	esac
 done
 
-processlist=$(mysql $connectionString--execute="Show processlist" mysql 2>> /var/log/checkMySQLProcesslist | sed 1d)
+processlist=$(mysql $connectionString--execute="Show processlist" mysql 2>> /var/log/checkMySQLProcesslist)
+processlist=$(echo "$processlist" | sed 1d | sed "/^[0-9]*\tsystem user/d")
 if [ ! "$processlist" ]
 	then
 	echo "MySQLProcesslist unknown: noProcesslist"
