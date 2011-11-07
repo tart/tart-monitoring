@@ -156,7 +156,7 @@ performanceData=$performanceData"delayedConnections=$delayedConnections;; "
 
 if [ "$criticalString" ]
 	then
-	echo -n "critical: $criticalString"
+	echo -n "MySQLProcesslist critical: $criticalString"
 	if [ "$warningString" ]
 		then
 		echo -n "warning: $warningString"
@@ -171,7 +171,7 @@ fi
 
 if [ "$warningString" ]
 	then
-	echo "warning: $warningString"
+	echo "MySQLProcesslist warning: $warningString"
 	if [ "$longestQueryString" ]
 		then
 		echo -n "longest query: $longestQueryString"
@@ -180,5 +180,5 @@ if [ "$warningString" ]
 	exit 1
 fi
 
-echo "ok | $performanceData"
+echo "MySQLProcesslist ok | $performanceData"
 exit 0
