@@ -49,7 +49,7 @@ if the following limits exceeded. Logs errors to /var/log/checkMySQLProcesslist.
 		<td ></td>
 	</tr>
 	<tr >
-		<td >Queries running more than a hour</td>
+		<td >Queries running more than an hour</td>
 		<td ></td>
 		<td >1</td>
 	</tr>
