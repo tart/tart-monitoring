@@ -14,7 +14,7 @@ Gives
 * notifications if the following limits exceeded,
 * longest query information if it is running for 1 minute.
 
-Logs errors to /var/log/checkMySQLProcesslist. Exit with
+Exit with
 
 * 0 for ok,
 * 1 for warning,

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
  ##
  # Tart Database Operations
  # Check MySQL Processlist
@@ -8,7 +8,7 @@
  # @date	2011-11-03
  ##
 
-while getopts "H:P:u:p:h" opt 2>> /var/log/checkMySQLProcesslist
+while getopts "H:P:u:p:h" opt
 	do
 	case $opt in
 		H )	connectionString=$connectionString"--host=$OPTARG " ;;
@@ -26,8 +26,7 @@ while getopts "H:P:u:p:h" opt 2>> /var/log/checkMySQLProcesslist
 	esac
 done
 
-processlist=$(mysql $connectionString--execute="Show processlist" mysql 2>> /var/log/checkMySQLProcesslist)
-processlist=$(echo "$processlist" | sed 1d | sed "/^[0-9]*\tsystem user/d")
+processlist=$(mysql $connectionString--execute="Show processlist" | sed 1d | sed "/^[^\t]*\tsystem user/d")
 if [ ! "$processlist" ]
 	then
 	echo "MySQLProcesslist unknown: noProcesslist"
@@ -50,24 +49,26 @@ queriesRunningFor10Minutes=0
 queriesRunningForAMinute=0
 queriesRunningFor10Seconds=0
 longestQueryTime=0
-for queryTime in $(echo "$processlist" | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]{5}" | cut -f 6)
+queryProcesslist=$(echo "$processlist" | sed "/^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\tNULL/d")
+for queryTime in $(echo "$queryProcesslist" | cut -f 6)
 	do
 	totalQueries=$(expr $totalQueries + 1)
-
 	if [ $queryTime -ge 3600 ]
 		then
 		queriesRunningForAnHour=$(expr $queriesRunningForAnHour + 1)
-	elif [ $queryTime -ge 600 ]
+	fi
+	if [ $queryTime -ge 600 ]
 		then
 		queriesRunningFor10Minutes=$(expr $queriesRunningFor10Minutes + 1)
-	elif [ $queryTime -ge 60 ]
+	fi
+	if [ $queryTime -ge 60 ]
 		then
 		queriesRunningForAMinute=$(expr $queriesRunningForAMinute + 1)
-	elif [ $queryTime -ge 10 ]
+	fi
+	if [ $queryTime -ge 10 ]
 		then
 		queriesRunningFor10Seconds=$(expr $queriesRunningFor10Seconds + 1)
 	fi
-
 	if [ $queryTime -ge $longestQueryTime ]
 		then
 		longestQueryTime=$queryTime
@@ -118,7 +119,7 @@ performanceData=$performanceData"queriesRunningForAnHour=$queriesRunningForAnHou
 
 if [ $longestQueryTime -ge 60 ]
 	then
-	longestProcess=$(echo "$processlist" | grep -P "\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t$longestQueryTime\t[^\t]*\t[^\t]{5}")
+	longestProcess=$(echo "$queryProcesslist" | grep "^[^\t]\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t$longestQueryTime")
 	longestQueryString=$longestQueryString"id is $(echo "$longestProcess" | cut -f 1); "
 	longestQueryString=$longestQueryString"user is $(echo "$longestProcess" | cut -f 2); "
 	longestQueryString=$longestQueryString"host is $(echo "$longestProcess" | cut -f 3); "
