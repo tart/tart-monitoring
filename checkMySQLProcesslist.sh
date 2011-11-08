@@ -8,6 +8,8 @@
  # @date	2011-11-03
  ##
 
+echo -n "CheckMySQLProcesslist "
+
 while getopts "H:P:u:p:h" opt
 	do
 	case $opt in
@@ -15,13 +17,13 @@ while getopts "H:P:u:p:h" opt
 		P )	connectionString=$connectionString"--port $OPTARG " ;;
 		u )	connectionString=$connectionString"--user=$OPTARG " ;;
 		p )	connectionString=$connectionString"--password=$OPTARG " ;;
-		h )	echo "Script to monitor MySQL processlist"
+		h )	echo "a script to monitor MySQL processlist"
 			echo "Usage:"
 			echo "$0 [-h] [-H hostname] [-P port] [-u username] [-p password]"
 			echo "Source:"
 			echo "github.com/tart/CheckMySQLProcesslist"
 			exit 3 ;;
-		\? )	echo "MySQLProcesslist unknown: wrongParameter"
+		\? )	echo "unknown: wrong parameter"
 			exit 3
 	esac
 done
@@ -29,7 +31,7 @@ done
 processlist=$(mysql $connectionString--execute="Show processlist" | sed 1d | sed "/^[^\t]*\tsystem user/d")
 if [ ! "$processlist" ]
 	then
-	echo "MySQLProcesslist unknown: noProcesslist"
+	echo "unknown: no processlist"
 	exit 3
 fi
 
@@ -53,73 +55,73 @@ queryProcesslist=$(echo "$processlist" | sed "/^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t
 for queryTime in $(echo "$queryProcesslist" | cut -f 6)
 	do
 	totalQueries=$(expr $totalQueries + 1)
-	if [ $queryTime -ge 3600 ]
-		then
-		queriesRunningForAnHour=$(expr $queriesRunningForAnHour + 1)
-	fi
-	if [ $queryTime -ge 600 ]
-		then
-		queriesRunningFor10Minutes=$(expr $queriesRunningFor10Minutes + 1)
-	fi
-	if [ $queryTime -ge 60 ]
-		then
-		queriesRunningForAMinute=$(expr $queriesRunningForAMinute + 1)
-	fi
 	if [ $queryTime -ge 10 ]
 		then
 		queriesRunningFor10Seconds=$(expr $queriesRunningFor10Seconds + 1)
-	fi
-	if [ $queryTime -ge $longestQueryTime ]
-		then
-		longestQueryTime=$queryTime
+		if [ $queryTime -ge 60 ]
+			then
+			queriesRunningForAMinute=$(expr $queriesRunningForAMinute + 1)
+			if [ $queryTime -ge 600 ]
+				then
+				queriesRunningFor10Minutes=$(expr $queriesRunningFor10Minutes + 1)
+				if [ $queryTime -ge 3600 ]
+					then
+					queriesRunningForAnHour=$(expr $queriesRunningForAnHour + 1)
+				fi
+			fi
+			if [ $queryTime -ge $longestQueryTime ]
+				then
+				longestQueryTime=$queryTime
+			fi
+		fi
 	fi
 done
 
 if [ $totalQueries -ge 55 ]
 	then
-	criticalString=$criticalString"total queries are $totalQueries reached 55; "
+	criticalString=$criticalString"$totalQueries queries reached 55; "
 elif [ $totalQueries -ge 21 ]
 	then
-	warningString=$warningString"total queries are $totalQueries reached 21; "
+	warningString=$warningString"$totalQueries queries reached 21; "
 fi
 performanceData=$performanceData"totalQueries=$totalQueries;21;55 "
 
 if [ $queriesRunningFor10Seconds -ge 21 ]
 	then
-	criticalString=$criticalString"queries running for 10 seconds are $queriesRunningFor10Seconds reached 21; "
+	criticalString=$criticalString"$queriesRunningFor10Seconds queries running for 10 seconds reached 21; "
 elif [ $queriesRunningFor10Seconds -ge 8 ]
 	then
-	warningString=$warningString"queries running for 10 seconds are $queriesRunningFor10Seconds reached 8; "
+	warningString=$warningString"$queriesRunningFor10Seconds queries running for 10 seconds reached 8; "
 fi
 performanceData=$performanceData"queriesRunningFor10Seconds=$queriesRunningFor10Seconds;8;21 "
 
 if [ $queriesRunningForAMinute -ge 8 ]
 	then
-	criticalString=$criticalString"queries running for a minute are $queriesRunningForAMinute reached 8; "
+	criticalString=$criticalString"$queriesRunningForAMinute queries running for a minute reached 8; "
 elif [ $queriesRunningForAMinute -ge 3 ]
 	then
-	warningString=$warningString"queries running for a minute are $queriesRunningForAMinute reached 3; "
+	warningString=$warningString"$queriesRunningForAMinute queries running for a minute reached 3; "
 fi
 performanceData=$performanceData"queriesRunningForAMinute=$queriesRunningForAMinute;3;8 "
 
 if [ $queriesRunningFor10Minutes -ge 3 ]
 	then
-	criticalString=$criticalString"queries running for 10 minutes are $queriesRunningFor10Minutes reached 3; "
+	criticalString=$criticalString"$queriesRunningFor10Minutes queries running for 10 minutes reached 3; "
 elif [ $queriesRunningFor10Minutes -ge 1 ]
 	then
-	warningString=$warningString"queries running for 10 minutes are $queriesRunningFor10Minutes reached 1; "
+	warningString=$warningString"$queriesRunningFor10Minutes queries running for 10 minutes reached 1; "
 fi
 performanceData=$performanceData"queriesRunningFor10Minutes=$queriesRunningFor10Minutes;1;3 "
 
 if [ $queriesRunningForAnHour -ge 1 ]
 	then
-	criticalString=$criticalString"queries running for an hour are $queriesRunningForAnHour reached 1; "
+	criticalString=$criticalString"$queriesRunningForAnHour queries running for an hour reached 1; "
 fi
 performanceData=$performanceData"queriesRunningForAnHour=$queriesRunningForAnHour;;1 "
 
-if [ $longestQueryTime -ge 60 ]
+if [ $longestQueryTime -gt 0 ]
 	then
-	longestProcess=$(echo "$queryProcesslist" | grep "^[^\t]\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t$longestQueryTime")
+	longestProcess=$(echo "$queryProcesslist" | grep -P "^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t$longestQueryTime")
 	longestQueryString=$longestQueryString"id is $(echo "$longestProcess" | cut -f 1); "
 	longestQueryString=$longestQueryString"user is $(echo "$longestProcess" | cut -f 2); "
 	longestQueryString=$longestQueryString"host is $(echo "$longestProcess" | cut -f 3); "
@@ -157,29 +159,29 @@ performanceData=$performanceData"delayedConnections=$delayedConnections;; "
 
 if [ "$criticalString" ]
 	then
-	echo -n "MySQLProcesslist critical: $criticalString"
-	if [ "$warningString" ]
-		then
-		echo -n "warning: $warningString"
-	fi
-	if [ "$longestQueryString" ]
-		then
-		echo -n "longest query: $longestQueryString"
-	fi
-	echo "| $performanceData"
-	exit 2
+	echo -n "critical: $criticalString"
 fi
-
 if [ "$warningString" ]
 	then
-	echo "MySQLProcesslist warning: $warningString"
-	if [ "$longestQueryString" ]
-		then
-		echo -n "longest query: $longestQueryString"
-	fi
-	echo "| $performanceData"
-	exit 1
+	echo -n "warning: $warningString"
+fi
+if [ ! "$criticalString" ] && [ ! "$warningString" ]
+	then
+	echo -n "ok: $(expr $total - 1) connections except this "
 fi
 
-echo "MySQLProcesslist ok | $performanceData"
+if [ "$longestQueryString" ]
+	then
+	echo -n "longest query: $longestQueryString"
+fi
+echo "| $performanceData"
+
+if [ "$criticalString" ]
+	then
+	exit 2
+fi
+if [ "$warningString" ]
+	then
+	exit 1
+fi
 exit 0
