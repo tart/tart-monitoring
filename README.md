@@ -3,6 +3,7 @@ CheckMySQLProcesslist a script to monitor MySQL processlist
 ## Usage
 
 ./checkMySQLProcesslist.sh -h
+
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password]
 
 ## Description
