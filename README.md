@@ -2,19 +2,19 @@ CheckMySQLProcesslist a script to monitor MySQL processlist
 
 ## Usage
 
+./checkMySQLProcesslist.sh -h
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password]
 
 ## Description
 
 Executes just one "show processlist" query on the server. Parse the output.
-
 Gives
 
 * all of the following values as performance data,
 * notifications if the following limits exceeded,
 * longest query information if it is running for a minute.
 
-Exit with
+Exits with
 
 * 0 for ok,
 * 1 for warning,

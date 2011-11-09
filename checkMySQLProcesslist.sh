@@ -19,7 +19,8 @@ while getopts "H:P:u:p:h" opt
 		p )	connectionString=$connectionString"--password=$OPTARG " ;;
 		h )	echo "a script to monitor MySQL processlist"
 			echo "Usage:"
-			echo "$0 [-h] [-H hostname] [-P port] [-u username] [-p password]"
+			echo "$0 -h"
+			echo "$0 [-H hostname] [-P port] [-u username] [-p password]"
 			echo "Source:"
 			echo "github.com/tart/CheckMySQLProcesslist"
 			exit 3 ;;
