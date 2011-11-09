@@ -36,7 +36,29 @@ if [ ! "$processlist" ]
 	exit 3
 fi
 
-connections=$(echo "$processlist" | wc -l)
+connections=0
+queringConnections=0
+connectiongConnections=0
+quitingConnections=0
+preparingConnections=0
+fetchingConnections=0
+executingConnections=0
+sleepingConnections=0
+delayedConnections=0
+for state in $(echo "$processlist" | cut -f 5)
+	do
+	connections=$(expr $connections + 1)
+	case $state in
+		"Query" )	queringConnections=$(expr $queringConnections + 1) ;;
+		"Connect" )	connectiongConnections=$(expr $connectiongConnections + 1) ;;
+		"Quit" )	quitingConnections=$(expr $quitingConnections + 1) ;;
+		"Prepare" )	preparingConnections=$(expr $preparingConnections + 1) ;;
+		"Fetch" )	fetchingConnections=$(expr $fetchingConnections + 1) ;;
+		"Execute" )	executingConnections=$(expr $executingConnections + 1) ;;
+		"Sleep" )	sleepingConnections=$(expr $sleepingConnections + 1) ;;
+		"Delayed insert" )	delayedConnections=$(expr $delayedConnections + 1) ;;
+	esac
+done
 if [ $connections -ge 377 ]
 	then
 	criticalString=$criticalString"$connections connections reached 377; "
@@ -46,28 +68,13 @@ elif [ $connections -ge 144 ]
 fi
 performanceData=$performanceData"connections=$connections;144;377 "
 
-queringConnections=$(echo "$processlist" | cut -f 5 | grep -c "Query")
 performanceData=$performanceData"queringConnections=$queringConnections;; "
-
-connectiongConnections=$(echo "$processlist" | cut -f 5 | grep -c "Connect")
 performanceData=$performanceData"connectiongConnections=$connectiongConnections;; "
-
-quitingConnections=$(echo "$processlist" | cut -f 5 | grep -c "Quit")
 performanceData=$performanceData"quitingConnections=$quitingConnections;; "
-
-preparingConnections=$(echo "$processlist" | cut -f 5 | grep -c "Prepare")
 performanceData=$performanceData"preparingConnections=$preparingConnections;; "
-
-fetchingConnections=$(echo "$processlist" | cut -f 5 | grep -c "Fetch")
 performanceData=$performanceData"fetchingConnections=$fetchingConnections;; "
-
-executingConnections=$(echo "$processlist" | cut -f 5 | grep -c "Execute")
 performanceData=$performanceData"executingConnections=$executingConnections;; "
-
-sleepingConnections=$(echo "$processlist" | cut -f 5 | grep -c "Sleep")
 performanceData=$performanceData"sleepingConnections=$sleepingConnections;; "
-
-delayedConnections=$(echo "$processlist" | cut -f 5 | grep -c "Delayed insert")
 performanceData=$performanceData"delayedConnections=$delayedConnections;; "
 
 queries=0
@@ -109,7 +116,7 @@ elif [ $queries -ge 21 ]
 	then
 	warningString=$warningString"$queries queries reached 21; "
 fi
-performanceData=$performanceData"totalQueries=$queries;21;55 "
+performanceData=$performanceData"queries=$queries;21;55 "
 
 if [ $queriesRunningFor10Seconds -ge 21 ]
 	then
