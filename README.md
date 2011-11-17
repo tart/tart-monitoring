@@ -37,10 +37,14 @@ Gives
 
 ## Usage
 
+```
 ./checkMySQLProcesslist.sh -h
+```
 
-./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password] \\
+```
+./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password] \
 		[-c limits] [-w limits]
+```	
 
 Hostname:
 
