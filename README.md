@@ -8,7 +8,7 @@ Gives
 
 * all of the following values as performance data,
 * notifications if the limits for the following exceeded,
-* longest query information if it is running for 1 minute.
+* longest query information if it is running for a minute.
 
 ### Variable List
 
@@ -65,4 +65,4 @@ as w1,w2,w3... for warning ordered by variable list given above.
 
 ### Example
 
-./checkMySQLProcesslist.sh -u *** -p *** -c 377,55,21,8,3,1 -w 144,21,8,3
+./checkMySQLProcesslist.sh -u *** -p *** -c 377,55,21,8,3,1 -w 144,21,8,3,1
