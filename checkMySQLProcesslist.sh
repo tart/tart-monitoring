@@ -47,6 +47,13 @@ if [ ! "$processlist" ]
 	exit 3
 fi
 
+globalVariables=$(mysql $connectionString--execute="Show global variables")
+if [ ! "$globalVariables" ]
+	then
+	echo "unknown: no global variables"
+	exit 3
+fi
+
 #
 # Parsing the resources
 #
@@ -107,6 +114,9 @@ for queryTime in $(echo "$queryProcesslist" | cut -f 6)
 	fi
 done
 
+maxConnections=$(echo "$globalVariables" | grep max_connections | cut -f 2)
+interactiveTimeout=$(echo "$globalVariables" | grep interactive_timeout | cut -f 2)
+
 #
 # Preparing the output
 #
@@ -116,12 +126,13 @@ connectionsCriticalLimit=$(echo "$criticalLimits" | cut -d , -f 1)
 connectionsWarningLimit=$(echo "$warningLimits" | cut -d , -f 1)
 if [ "$connectionsCriticalLimit" ] && [ $connections -ge $connectionsCriticalLimit ]
 	then
-	criticalString=$criticalString"connections are $connections reached $connectionsCriticalLimit; "
+	criticalString=$criticalString"$connections connections of $maxConnections reached $connectionsCriticalLimit; "
 elif [ "$connectionsWarningLimit" ] && [ $connections -ge $connectionsWarningLimit ]
 	then
-	warningString=$warningString"connections are $connections reached $connectionsWarningLimit; "
+	warningString=$warningString"$connections connections of $maxConnections reached $connectionsWarningLimit; "
 fi
-performanceData=$performanceData"connections=$connections;$connectionsWarningLimit;$connectionsCriticalLimit "
+okString=$okString"$connections connections of $maxConnections; "
+performanceData=$performanceData"connections=$connections;$connectionsWarningLimit;$connectionsCriticalLimit;0;$maxConnections "
 
 queriesCriticalLimit=$(echo "$criticalLimits" | cut -d , -f 2 -s)
 queriesWarningLimit=$(echo "$warningLimits" | cut -d , -f 2 -s)
@@ -143,7 +154,7 @@ elif [ "$queriesRunningFor10WarningLimit" ] && [ $queriesRunningFor10 -ge $queri
 	then
 	warningString=$warningString"$queriesRunningFor10 queries running for 10 seconds reached $queriesRunningFor10WarningLimit; "
 fi
-performanceData=$performanceData"queriesRunningFor10Seconds=$queriesRunningFor10;$queriesRunningFor10WarningLimit;$queriesRunningFor10CriticalLimit "
+performanceData=$performanceData"queriesRunningFor10Seconds=$queriesRunningFor10;$queriesRunningFor10WarningLimit;$queriesRunningFor10CriticalLimit;0;$maxConnections "
 
 queriesRunningFor60CriticalLimit=$(echo "$criticalLimits" | cut -d , -f 4 -s)
 queriesRunningFor60WarningLimit=$(echo "$warningLimits" | cut -d , -f 4 -s)
@@ -154,7 +165,7 @@ elif [ "$queriesRunningFor60WarningLimit" ] && [ $queriesRunningFor60 -ge $queri
 	then
 	warningString=$warningString"$queriesRunningFor60 queries running for a minute reached $queriesRunningFor60WarningLimit; "
 fi
-performanceData=$performanceData"queriesRunningFor60=$queriesRunningFor60;$queriesRunningFor60WarningLimit;$queriesRunningFor60CriticalLimit "
+performanceData=$performanceData"queriesRunningFor60=$queriesRunningFor60;$queriesRunningFor60WarningLimit;$queriesRunningFor60CriticalLimit;0;$maxConnections "
 
 queriesRunningFor600CriticalLimit=$(echo "$criticalLimits" | cut -d , -f 5 -s)
 queriesRunningFor600WarningLimit=$(echo "$warningLimits" | cut -d , -f 5 -s)
@@ -165,7 +176,7 @@ elif [ "$queriesRunningFor600WarningLimit" ] && [ $queriesRunningFor600 -ge $que
 	then
 	warningString=$warningString"$queriesRunningFor600 queries running for 10 minutes reached $queriesRunningFor600WarningLimit; "
 fi
-performanceData=$performanceData"queriesRunningFor600=$queriesRunningFor600;$queriesRunningFor600WarningLimit;$queriesRunningFor600CriticalLimit "
+performanceData=$performanceData"queriesRunningFor600=$queriesRunningFor600;$queriesRunningFor600WarningLimit;$queriesRunningFor600CriticalLimit;0;$maxConnections "
 
 queriesRunningFor3600CriticalLimit=$(echo "$criticalLimits" | cut -d , -f 6 -s)
 queriesRunningFor3600WarningLimit=$(echo "$warningLimits" | cut -d , -f 6 -s)
@@ -176,16 +187,16 @@ elif [ "$queriesRunningFor3600WarningLimit" ] && [ $queriesRunningFor3600 -ge $q
 	then
 	warningString=$warningString"$queriesRunningFor3600 queries running for an hour reached $queriesRunningFor3600WarningLimit; "
 fi
-performanceData=$performanceData"queriesRunningFor3600=$queriesRunningFor3600;$queriesRunningFor3600WarningLimit;$queriesRunningFor3600CriticalLimit "
+performanceData=$performanceData"queriesRunningFor3600=$queriesRunningFor3600;$queriesRunningFor3600WarningLimit;$queriesRunningFor3600CriticalLimit;0;$maxConnections "
 
-performanceData=$performanceData"queringConnections=$queringConnections;; "
-performanceData=$performanceData"connectingConnections=$connectingConnections;; "
-performanceData=$performanceData"quitingConnections=$quitingConnections;; "
-performanceData=$performanceData"preparingConnections=$preparingConnections;; "
-performanceData=$performanceData"fetchingConnections=$fetchingConnections;; "
-performanceData=$performanceData"executingConnections=$executingConnections;; "
-performanceData=$performanceData"sleepingConnections=$sleepingConnections;; "
-performanceData=$performanceData"delayedConnections=$delayedConnections;; "
+performanceData=$performanceData"queringConnections=$queringConnections;;;0;$maxConnections "
+performanceData=$performanceData"connectingConnections=$connectingConnections;;;0;$maxConnections "
+performanceData=$performanceData"quitingConnections=$quitingConnections;;;0;$maxConnections "
+performanceData=$performanceData"preparingConnections=$preparingConnections;;;0;$maxConnections "
+performanceData=$performanceData"fetchingConnections=$fetchingConnections;;;0;$maxConnections "
+performanceData=$performanceData"executingConnections=$executingConnections;;;0;$maxConnections "
+performanceData=$performanceData"sleepingConnections=$sleepingConnections;;;0;$maxConnections "
+performanceData=$performanceData"delayedConnections=$delayedConnections;;;0;$maxConnections "
 
 if [ $longestQueryTime -gt 0 ]
 	then
@@ -199,7 +210,7 @@ if [ $longestQueryTime -gt 0 ]
 	longestQueryString=$longestQueryString"state is $(echo "$longestProcess" | cut -f 7); "
 	longestQueryString=$longestQueryString"executing \"$(echo "$longestProcess" | cut -f 8)\"; "
 fi
-performanceData=$performanceData"longestQueryTime=$longestQueryTime;; "
+performanceData=$performanceData"longestQueryTime=$longestQueryTime;;0;$interactiveTimeout "
 
 #
 # Quiting
@@ -215,7 +226,7 @@ if [ "$warningString" ]
 fi
 if [ ! "$criticalString" ] && [ ! "$warningString" ]
 	then
-	echo -n "ok: $(expr $connections - 1) connections except this; "
+	echo -n "ok: $okString"
 fi
 
 if [ "$longestQueryString" ]
