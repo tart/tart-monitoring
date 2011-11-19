@@ -20,8 +20,8 @@ while getopts "H:P:u:p:c:w:h" opt; do
 		P )	connectionString=$connectionString"--port $OPTARG " ;;
 		u )	connectionString=$connectionString"--user=$OPTARG " ;;
 		p )	connectionString=$connectionString"--password=$OPTARG " ;;
-		c )	criticalLimits=$OPTARG ;;
-		w )	warningLimits=$OPTARG ;;
+		c )	criticalLimitsArray=(${criticalLimitsArray[*]} $OPTARG) ;;
+		w )	warningLimitsArray=(${warningLimitsArray[*]} $OPTARG) ;;
 		h )	echo "a script to monitor MySQL processlist"
 			echo "Usage:"
 			echo "$0 -h"
@@ -108,25 +108,29 @@ maxConnections=$(echo "$globalVariables" | grep max_connections | cut -f 2)
 interactiveTimeout=$(echo "$globalVariables" | grep interactive_timeout | cut -f 2)
 
 id=0
-for criticalLimit in $(echo "$criticalLimits" | sed "s/,/ /g"); do
-	criticalLimitPercent=$(echo "$criticalLimit" | grep % | sed "s/%//")
-	if [ "$criticalLimitPercent" ]; then
-		criticalLimitArray[$id]=$(expr $maxConnections"00" / $(expr 10000 / $criticalLimit))
-	else
-		criticalLimitArray[$id]=$criticalLimit
-	fi
-	id=$(expr $id + 1)
+for criticalLimits in ${criticalLimitsArray[*]}; do
+	for criticalLimit in $(echo "$criticalLimits" | sed "s/,/ /g"); do
+		criticalLimitPercent=$(echo "$criticalLimit" | grep % | sed "s/%//")
+		if [ "$criticalLimitPercent" ]; then
+			criticalLimitArray[$id]=$(expr $maxConnections"00" / $(expr 10000 / $criticalLimit))
+		else
+			criticalLimitArray[$id]=$criticalLimit
+		fi
+		id=$(expr $id + 1)
+	done
 done
 
 id=0
-for warningLimit in $(echo "$warningLimits" | sed "s/,/ /g"); do
-	warningLimitPercent=$(echo "$warningLimit" | grep % | sed "s/%//")
-	if [ "$warningLimitPercent" ]; then
-		warningLimitArray[$id]=$(expr $maxConnections"00" / $(expr 10000 / $warningLimit))
-	else
-		warningLimitArray[$id]=$warningLimit
-	fi
-	id=$(expr $id + 1)
+for warningLimits in ${warningLimitsArray[*]}; do
+	for warningLimit in $(echo "$warningLimits" | sed "s/,/ /g"); do
+		warningLimitPercent=$(echo "$warningLimit" | grep % | sed "s/%//")
+		if [ "$warningLimitPercent" ]; then
+			warningLimitArray[$id]=$(expr $maxConnections"00" / $(expr 10000 / $warningLimit))
+		else
+			warningLimitArray[$id]=$warningLimit
+		fi
+		id=$(expr $id + 1)
+	done
 done
 
 #
@@ -144,9 +148,9 @@ performanceData=$performanceData"connections=$connections;${warningLimitArray[0]
 if [ ${criticalLimitArray[1]} ] && [ $queries -ge ${criticalLimitArray[1]} ]; then
 	criticalString=$criticalString"$queries queries reached ${criticalLimitArray[1]}; "
 elif [ ${warningLimitArray[1]} ] && [ $queries -ge ${warningLimitArray[1]} ]; then
-	warningString=$warningString"$queries queries reached $queriesWarningLimit; "
+	warningString=$warningString"$queries queries reached ${warningLimitArray[1]}; "
 fi
-performanceData=$performanceData"queries=$queries;$queriesWarningLimit;${criticalLimitArray[1]} "
+performanceData=$performanceData"queries=$queries;${warningLimitArray[1]};${criticalLimitArray[1]};0;$maxConnections "
 
 if [ ${criticalLimitArray[2]} ] && [ $queriesRunningFor10 -ge ${criticalLimitArray[2]} ]; then
 	criticalString=$criticalString"${criticalLimitArray[2]} queries running for 10 seconds reached ${criticalLimitArray[2]}; "
