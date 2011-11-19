@@ -10,6 +10,10 @@
 
 echo -n "CheckMySQLProcesslist "
 
+#
+# Fetching the parameters
+#
+
 while getopts "H:P:u:p:c:w:h" opt
 	do
 	case $opt in
@@ -32,12 +36,20 @@ while getopts "H:P:u:p:c:w:h" opt
 	esac
 done
 
+#
+# Querying the database
+#
+
 processlist=$(mysql $connectionString--execute="Show processlist" | sed 1d | sed "/^[^\t]*\tsystem user/d")
 if [ ! "$processlist" ]
 	then
 	echo "unknown: no processlist"
 	exit 3
 fi
+
+#
+# Parsing the resources
+#
 
 connections=0
 queringConnections=0
@@ -62,20 +74,6 @@ for state in $(echo "$processlist" | cut -f 5)
 		"Delayed insert" )	delayedConnections=$(expr $delayedConnections + 1) ;;
 	esac
 done
-
-connections=$(echo "$processlist" | wc -l)
-connectionsCriticalLimit=$(echo "$criticalLimits" | cut -d , -f 1)
-connectionsWarningLimit=$(echo "$warningLimits" | cut -d , -f 1)
-if [ "$connectionsCriticalLimit" ] && [ $connections -ge $connectionsCriticalLimit ]
-	then
-	criticalString=$criticalString"connections are $connections reached $connectionsCriticalLimit; "
-elif [ "$connectionsWarningLimit" ] && [ $connections -ge $connectionsWarningLimit ]
-	then
-	warningString=$warningString"connections are $connections reached $connectionsWarningLimit; "
-fi
-performanceData=$performanceData"connections=$connections;$connectionsWarningLimit;$connectionsCriticalLimit "
-
-
 
 queries=0
 queriesRunningFor10=0
@@ -108,6 +106,22 @@ for queryTime in $(echo "$queryProcesslist" | cut -f 6)
 		fi
 	fi
 done
+
+#
+# Preparing the output
+#
+
+connections=$(echo "$processlist" | wc -l)
+connectionsCriticalLimit=$(echo "$criticalLimits" | cut -d , -f 1)
+connectionsWarningLimit=$(echo "$warningLimits" | cut -d , -f 1)
+if [ "$connectionsCriticalLimit" ] && [ $connections -ge $connectionsCriticalLimit ]
+	then
+	criticalString=$criticalString"connections are $connections reached $connectionsCriticalLimit; "
+elif [ "$connectionsWarningLimit" ] && [ $connections -ge $connectionsWarningLimit ]
+	then
+	warningString=$warningString"connections are $connections reached $connectionsWarningLimit; "
+fi
+performanceData=$performanceData"connections=$connections;$connectionsWarningLimit;$connectionsCriticalLimit "
 
 queriesCriticalLimit=$(echo "$criticalLimits" | cut -d , -f 2 -s)
 queriesWarningLimit=$(echo "$warningLimits" | cut -d , -f 2 -s)
@@ -186,6 +200,10 @@ if [ $longestQueryTime -gt 0 ]
 	longestQueryString=$longestQueryString"executing \"$(echo "$longestProcess" | cut -f 8)\"; "
 fi
 performanceData=$performanceData"longestQueryTime=$longestQueryTime;; "
+
+#
+# Quiting
+#
 
 if [ "$criticalString" ]
 	then
