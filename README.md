@@ -18,7 +18,6 @@ Gives
 * Queries running more than a minute
 * Queries running more than 10 minutes
 * Queries running more than an hour
-* Longest query time
 * Sleeping connections
 * Querying connections
 * Connecting connections
@@ -27,6 +26,7 @@ Gives
 * Fetching connections
 * Executing connections
 * Delayed connections
+* Longest query time
 
 ### Exit Status
 

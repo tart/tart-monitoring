@@ -164,6 +164,15 @@ elif [ "$queriesRunningFor3600WarningLimit" ] && [ $queriesRunningFor3600 -ge $q
 fi
 performanceData=$performanceData"queriesRunningFor3600=$queriesRunningFor3600;$queriesRunningFor3600WarningLimit;$queriesRunningFor3600CriticalLimit "
 
+performanceData=$performanceData"queringConnections=$queringConnections;; "
+performanceData=$performanceData"connectingConnections=$connectingConnections;; "
+performanceData=$performanceData"quitingConnections=$quitingConnections;; "
+performanceData=$performanceData"preparingConnections=$preparingConnections;; "
+performanceData=$performanceData"fetchingConnections=$fetchingConnections;; "
+performanceData=$performanceData"executingConnections=$executingConnections;; "
+performanceData=$performanceData"sleepingConnections=$sleepingConnections;; "
+performanceData=$performanceData"delayedConnections=$delayedConnections;; "
+
 if [ $longestQueryTime -gt 0 ]
 	then
 	longestProcess=$(echo "$queryProcesslist" | grep -P "^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t$longestQueryTime")
@@ -177,15 +186,6 @@ if [ $longestQueryTime -gt 0 ]
 	longestQueryString=$longestQueryString"executing \"$(echo "$longestProcess" | cut -f 8)\"; "
 fi
 performanceData=$performanceData"longestQueryTime=$longestQueryTime;; "
-
-performanceData=$performanceData"queringConnections=$queringConnections;; "
-performanceData=$performanceData"connectingConnections=$connectingConnections;; "
-performanceData=$performanceData"quitingConnections=$quitingConnections;; "
-performanceData=$performanceData"preparingConnections=$preparingConnections;; "
-performanceData=$performanceData"fetchingConnections=$fetchingConnections;; "
-performanceData=$performanceData"executingConnections=$executingConnections;; "
-performanceData=$performanceData"sleepingConnections=$sleepingConnections;; "
-performanceData=$performanceData"delayedConnections=$delayedConnections;; "
 
 if [ "$criticalString" ]
 	then
