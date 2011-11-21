@@ -6,30 +6,11 @@ Executes just one "show processlist" query on the server. Parse the output.
 
 Gives
 
-* all of the following values as performance data,
-* notifications if the limits for the following exceeded,
-* longest query information if it is running for a minute.
-
-### Variable List
-
-* All connections
-* All Queries
-* Sleeping connections
-* Querying connections
-* Connecting connections
-* Quitting connections
-* Preparing connections
-* Fetching connections
-* Executing connections
-* Delayed connections
-* Longest query time
-
-### Exit Status
-
-* 0 for ok
-* 1 for warning
-* 2 for critical
-* 3 for unknown
+* counts of the process' active for given seconds,
+* notifications if the given limits exceeded,
+* counts of the querying, connecting, fetching, executing, sleeping connections, 
+* longest query information,
+* time of the longest process.
 
 ## Usage
 
@@ -39,35 +20,54 @@ Gives
 
 ```
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password] \
-		[-s seconds] [-w limits] [-c limits]
+		[-q] [-s seconds] [-w limits] [-c limits]
 ```	
 
-Hostname:
+-h hostname		Hostname to connect to the MySQL server.
 
-Hostname of the host.
+-p port			Port to connect to the MySQL server.
 
-Port:
+-u username		Username to connect to the MySQL server.
 
-Post of the MySQL server.
+-p password		Password to connect to the MySQL server.
 
-Username:
+-q			Query mode: counts only process' with queries.
 
-Username for the MySQL server.
+-s seconds		A second or seconds to count process'. Default is 0.
 
-Password:
+-w limits		A limit or limits to give warning for counted process'.
 
-Password for the MySQL server.
+-c limits		A limit or limits to give critical for counted process'.
 
-Seconds:
+Multiple -s, -w, -c values can be given or a value can be given comma separated.
+Limits relates to seconds by order.
 
-Seconds to to group process' and check the limits.
+### Exit Status
 
-Limits:
+* 0 for ok
+* 1 for warning
+* 2 for critical
+* 3 for unknown
 
-Comma separated critical, warning limits. Written as c1,c2,c3... for critical,
-as w1,w2,w3... for warning ordered by variable list given above.
+### Examples
 
-### Example
+```
+./checkMySQLProcesslist.sh -u *** -p *** -w 50% -c 80%
+```
 
+```
+./checkMySQLProcesslist.sh -u *** -p *** -s 60 -w 20 -c 50
+```
+
+```
+./checkMySQLProcesslist.sh -u *** -p *** -s 0 -s 60 -w 50% -c 80% -c 70%
+```
+
+```
+./checkMySQLProcesslist.sh -u *** -p *** -q -w 20 -c 50
+```
+
+```
 ./checkMySQLProcesslist.sh -u *** -p *** -s 0,1,10,60,600,3600 \
-		-w 34,13,5,2,1 -c 144,55,21,8,3,1
+		-q -w 34,13,5,2,1 -c 144,55,21,8,3,1
+```
