@@ -14,10 +14,6 @@ Gives
 
 * All connections
 * All Queries
-* Queries running more than 10 seconds
-* Queries running more than a minute
-* Queries running more than 10 minutes
-* Queries running more than an hour
 * Sleeping connections
 * Querying connections
 * Connecting connections
@@ -43,7 +39,7 @@ Gives
 
 ```
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password] \
-		[-c limits] [-w limits]
+		[-s seconds] [-w limits] [-c limits]
 ```	
 
 Hostname:
@@ -62,6 +58,10 @@ Password:
 
 Password for the MySQL server.
 
+Seconds:
+
+Seconds to to group process' and check the limits.
+
 Limits:
 
 Comma separated critical, warning limits. Written as c1,c2,c3... for critical,
@@ -69,4 +69,5 @@ as w1,w2,w3... for warning ordered by variable list given above.
 
 ### Example
 
-./checkMySQLProcesslist.sh -u *** -p *** -c 377,55,21,8,3,1 -w 144,21,8,3,1
+./checkMySQLProcesslist.sh -u *** -p *** -s 0,1,10,60,600,3600 \
+		-w 34,13,5,2,1 -c 144,55,21,8,3,1
