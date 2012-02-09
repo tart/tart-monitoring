@@ -64,7 +64,7 @@ Limits relates to seconds by order.
 ```
 
 ```
-./checkMySQLProcesslist.sh -u *** -p *** -w 20 -c 50
+./checkMySQLProcesslist.sh -u *** -p *** -q -w 20 -c 50
 ```
 
 ```
