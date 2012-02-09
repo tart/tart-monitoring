@@ -23,9 +23,9 @@ Gives
 		[-q] [-s seconds] [-w limits] [-c limits]
 ```	
 
--h hostname		Hostname to connect to the MySQL server.
+-H hostname		Hostname to connect to the MySQL server.
 
--p port			Port to connect to the MySQL server.
+-P port			Port to connect to the MySQL server.
 
 -u username		Username to connect to the MySQL server.
 
@@ -64,7 +64,7 @@ Limits relates to seconds by order.
 ```
 
 ```
-./checkMySQLProcesslist.sh -u *** -p *** -q -w 20 -c 50
+./checkMySQLProcesslist.sh -u *** -p *** -w 20 -c 50
 ```
 
 ```
