@@ -20,24 +20,24 @@ Gives
 
 ```
 ./checkMySQLProcesslist.sh [-H hostname] [-P port] [-u username] [-p password] \
-		[-q] [-s seconds] [-w limits] [-c limits]
-```	
+                           [-q] [-s seconds] [-w limits] [-c limits]
+```    
 
--H hostname		Hostname to connect to the MySQL server.
+-H hostname        Hostname to connect to the MySQL server.
 
--P port			Port to connect to the MySQL server.
+-P port            Port to connect to the MySQL server.
 
--u username		Username to connect to the MySQL server.
+-u username        Username to connect to the MySQL server.
 
--p password		Password to connect to the MySQL server.
+-p password        Password to connect to the MySQL server.
 
--q			Query mode: counts only process' with queries.
+-q                 Query mode: counts only process' with queries.
 
--s seconds		A second or seconds to count process'. Default is 0.
+-s seconds         A second or seconds to count process'. Default is 0.
 
--w limits		A limit or limits to give warning for counted process'.
+-w limits          A limit or limits to give warning for counted process'.
 
--c limits		A limit or limits to give critical for counted process'.
+-c limits          A limit or limits to give critical for counted process'.
 
 Multiple -s, -w, -c values can be given or a value can be given comma separated.
 Limits relates to seconds by order.
@@ -69,5 +69,5 @@ Limits relates to seconds by order.
 
 ```
 ./checkMySQLProcesslist.sh -u *** -p *** -s 0,1,10,60,600,3600 \
-		-q -w 34,13,5,2,1 -c 144,55,21,8,3,1
+                           -q -w 34,13,5,2,1 -c 144,55,21,8,3,1
 ```
