@@ -120,7 +120,7 @@ fi
 
 for time in $(echo "$processlist" | cut -f 6); do
     for id in ${!secondArray[*]}; do
-        if [ $time -gt ${secondArray[$id]} ]; then
+        if [ $time -ge ${secondArray[$id]} ]; then
             countArray[$id]=$[${countArray[$id]}+1]
         fi
     done
