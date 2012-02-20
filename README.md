@@ -8,7 +8,9 @@ Gives
 
 * counts of the process' active for given seconds,
 * notifications if the given limits exceeded,
-* counts of the querying, connecting, fetching, executing, sleeping connections, 
+* count of unauthenticated connections to identify DNS problems,
+* counts of the querying, connecting, fetching, executing, sleeping connections,
+* counts of the temporary table using, preparing, sorting, locked queries,
 * longest query information,
 * time of the longest process.
 
