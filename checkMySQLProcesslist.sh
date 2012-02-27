@@ -269,7 +269,7 @@ if [ $queryMode ]; then
 	    longestQueryString=$longestQueryString"state is $(echo "$longestQuery" | cut -f 7); "
 	fi
 fi
-performanceData=$performanceData"longestTime=$longestTime;;0;$timeout "
+performanceData=$performanceData"longestTime=$longestTime;;;0;$timeout "
 
 #
 # Quiting
