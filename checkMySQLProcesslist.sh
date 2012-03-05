@@ -139,7 +139,7 @@ if [ ! $queryMode ]; then
     done
 
     queringConnections=0
-    connectiongConnections=0
+    connectingConnections=0
     fetchingConnections=0
     executingConnections=0
     sleepingConnections=0
