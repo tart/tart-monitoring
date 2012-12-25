@@ -7,8 +7,6 @@
  # @date    2011-11-03
  ##
 
-echo -n "CheckMySQLProcesslist "
-
 #
 # Fetching the parameters
 #
@@ -31,7 +29,7 @@ while getopts "H:P:u:p:s:c:w:qh" opt; do
              echo "Source:"
              echo "github.com/tart/CheckMySQLProcesslist"
              exit 3 ;;
-        \? ) echo "unknown: wrong parameter"
+        \? ) echo "UNKNOWN wrong parameter"
              exit 3
     esac
 done
@@ -46,13 +44,13 @@ fi
 
 processlist=$(mysql $connectionString--execute="Show processlist" | sed 1d | sed "/^[^\t]*\tsystem user/d")
 if [ ! "$processlist" ]; then
-    echo "unknown: no processlist"
+    echo "UNKNOWN no processlist"
     exit 3
 fi
 
 globalVariables=$(mysql $connectionString--execute="Show global variables")
 if [ ! "$globalVariables" ]; then
-    echo "unknown: no global variables"
+    echo "UNKNOWN no global variables"
     exit 3
 fi
 
@@ -276,13 +274,13 @@ performanceData=$performanceData"longestTime=$longestTime;;;0;$timeout "
 #
 
 if [ "$criticalString" ]; then
-    echo -n "critical: $criticalString"
+    echo -n "CRITICAL CheckMySQLProcesslist $criticalString"
 fi
 if [ "$warningString" ]; then
-    echo -n "warning: $warningString"
+    echo -n "WARNING CheckMySQLProcesslist $warningString"
 fi
 if [ ! "$criticalString" ] && [ ! "$warningString" ]; then
-    echo -n "ok: $okString"
+    echo -n "OK CheckMySQLProcesslist $okString"
 fi
 
 if [ "$longestQueryString" ]; then
