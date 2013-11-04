@@ -1,3 +1,8 @@
+Compilation of monitoring scripts we use with Nagios. Most of them are written
+by use. Some of them copied to here from other sources for convenience.
+
+## Usage
+
 #### checkMySQLProcesslist.sh
 
 Executes just one "show processlist" query on the server. Parse the output.
