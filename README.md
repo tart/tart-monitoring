@@ -117,3 +117,10 @@ Exit statuses:
 ./checkMySQLTableStatus.py -m data_length,index_length,data_free -w 50G,50G,500M -l 5M,5M,5M -aAMN
 ```
 
+## License
+
+The scripts developed by us are released under the ISC License. The ISC License is registered with and approved by
+the Open Source Initiative [1]. Licenses are included to the scripts.
+
+[1] http://opensource.org/licenses/isc-license.txt
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##
-# Tart Integration
+# Tart Monitoring
 #
 # Copyright (c) 2013, Tart İnternet Teknolojileri Ticaret AŞ
 #
