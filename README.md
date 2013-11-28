@@ -1,6 +1,7 @@
 Compilation of monitoring scripts we use with Nagios. Most of them are written
 by use. Some of them copied to here from other sources for convenience.
 
+
 ## Usage
 
 #### checkMySQLProcesslist.sh
@@ -64,6 +65,7 @@ Modes are the columns on the result of "show table status" query. Numeric ones a
 
 for MySQL 5.
 
+
 ## Compatibility
 
 Exit statuses:
@@ -72,6 +74,7 @@ Exit statuses:
 * 1 for warning
 * 2 for critical
 * 3 for unknown
+
 
 ## Examples
 
@@ -116,6 +119,16 @@ Exit statuses:
 ```
 ./checkMySQLTableStatus.py -m data_length,index_length,data_free -w 50G,50G,500M -l 5M,5M,5M -aAMN
 ```
+
+
+## History
+
+#### check_syncrepl.py
+
+Retrieved from the Nagios Exchange [1] on 2013-11-27.
+
+[1] http://exchange.nagios.org/directory/Plugins/Network-Protocols/LDAP/Openldap-Syncrepl/details
+
 
 ## License
 
