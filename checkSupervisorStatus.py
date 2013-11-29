@@ -20,17 +20,6 @@ from __future__ import print_function
 import sys
 import xmlrpclib
 
-if len(sys.argv) < 2:
-    raise Exception('No argument.')
-if len(sys.argv) > 2:
-    raise Exception('Too many arguments.')
-
-server = xmlrpclib.Server(sys.argv[1])
-processes = server.supervisor.getAllProcessInfo()
-
-if not processes:
-    raise Exception('No process.')
-
 def exitCode(state):
     if state == 'FATAL':
         return 2
@@ -38,22 +27,41 @@ def exitCode(state):
         return 1
     return 0
 
-processesByState = {}
-for process in processes:
-    if process['statename'] not in processesByState:
-        processesByState[process['statename']] = []
-    processesByState[process['statename']].append(process)
+def main(argv):
+    if len(argv) < 2:
+        raise Exception('No argument.')
+    if len(argv) > 2:
+        raise Exception('Too many arguments.')
 
-for state in sorted(processesByState, key=exitCode, reverse=True):
-    print(state, end=': ')
-    if len(processesByState[state]) / (exitCode(state) + 1) < 5:
-        for process in processesByState[state]:
-            print(process['name'], end=' ')
-            if process.get('description'):
-                print(process['description'], end=' ')
-    else:
-        print(str(len(processesByState[state])) + ' process', end=' ')
+    server = xmlrpclib.Server(argv[1])
+    processes = server.supervisor.getAllProcessInfo()
 
-print()
-sys.exit(max((exitCode(state) for state in processesByState)))
+    if not processes:
+        raise Exception('No process.')
+
+    processesByState = {}
+    for process in processes:
+        if process['statename'] not in processesByState:
+            processesByState[process['statename']] = []
+        processesByState[process['statename']].append(process)
+
+    for state in sorted(processesByState, key=exitCode, reverse=True):
+        print(state, end=': ')
+        if len(processesByState[state]) / (exitCode(state) + 1) < 5:
+            for process in processesByState[state]:
+                print(process['name'], end=' ')
+                if process.get('description'):
+                    print(process['description'], end=' ')
+        else:
+            print(str(len(processesByState[state])) + ' process', end=' ')
+
+    print()
+    return max((exitCode(state) for state in processesByState))
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main(sys.argv))
+    except Exception as exception:
+        print('Error: ' + str(exception))
+        sys.exit(3)
 
