@@ -35,10 +35,9 @@ if not response:
 info = response.info()
 
 def getHeaderValue(info, key):
-    keylen = len(key) + 1
     for header in info.headers:
-        if header[:keylen] == key + ':':
-            return header[keylen:]
+        if header.startswith(key + ':'):
+            return header[(len(key) + 1):]
 
 server = getHeaderValue(info, 'Server')
 
