@@ -65,6 +65,11 @@ Modes are the columns on the result of "show table status" query. Numeric ones a
 
 for MySQL 5.
 
+#### check_postfix_queue.sh
+
+Executes "mailq" command via SSH on the remote server. SSH public key of the user should be added to the same user
+on the remote server. Prints the mail count on the queue.
+
 
 ## Compatibility
 
@@ -120,6 +125,12 @@ Exit statuses:
 ./checkMySQLTableStatus.py -m data_length,index_length,data_free -w 50G,50G,500M -l 5M,5M,5M -aAMN
 ```
 
+#### check_postfix_queue.sh
+
+```
+./check_postfix_queue.sh -H *** -w 200 -c 500
+```
+
 
 ## History
 
@@ -127,7 +138,15 @@ Exit statuses:
 
 Retrieved from the Nagios Exchange [1] on 2013-11-27.
 
+#### check_postfix_queue.sh
+
+Retrieved from the Nagios Exchange [2] on 2014-06-12. Modified to be used for a remote server using SSH. Suffix added
+to its name.
+
+
 [1] http://exchange.nagios.org/directory/Plugins/Network-Protocols/LDAP/Openldap-Syncrepl/details
+
+[2] http://exchange.nagios.org/directory/Plugins/Email-and-Groupware/Postfix/check_postfix_queue/details
 
 
 ## License
