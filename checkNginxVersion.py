@@ -17,6 +17,7 @@
 
 import sys
 import urllib2
+from HTMLParser import HTMLParser
 
 def main():
     if len(sys.argv) < 2:
@@ -24,23 +25,27 @@ def main():
     if len(sys.argv) > 2:
         raise Exception('Too many arguments.')
 
+    try:
+        serverVersion = getServerVersion(sys.argv[1])
+        publishedVersion = getPublishedVersion('http://nginx.org/en/download.html')
+    except Exception as exception:
+        print('Exception: ' + str(exception))
+        sys.exit(3)
+
+    print('Current version ' + serverVersion + ' stable version: ' + publishedVersion)
+
+    if serverVersion != publishedVersion:
+        sys.exit(1)
+    sys.exit(0)
+
+def getServerVersion(address):
     response = None
     try:
-        response = urllib2.urlopen(sys.argv[1])
+        response = urllib2.urlopen(address)
     except urllib2.HTTPError as error:
         response = error
 
-    if not response:
-        raise Exception('No response.')
-
-    info = response.info()
-
-    def getHeaderValue(info, key):
-        for header in info.headers:
-            if header.startswith(key + ':'):
-                return header[(len(key) + 1):]
-
-    server = getHeaderValue(info, 'Server')
+    server = selectHeader(response.info().headers, 'Server')
 
     if not server:
         raise Exception('No server header.')
@@ -53,31 +58,15 @@ def main():
     if len(split) < 2:
         raise Exception('No version on the server header.')
 
-    currentVersion = split[1]
+    return split[1]
 
-    response = urllib2.urlopen('http://nginx.org/en/download.html')
+def selectHeader(headers, key):
+    for header in headers:
+        if header.startswith(key + ':'):
+            return header[(len(key) + 1):]
 
-    from HTMLParser import HTMLParser
-
-    class NginxDownloadHTMLParser(HTMLParser):
-        def __init__(self):
-            HTMLParser.__init__(self)
-            self.__lastTag = None
-            self.__h4 = None
-            self.__stableVersion = None
-
-        def handle_starttag(self, tag, attrs):
-            self.__lastTag = tag
-
-        def handle_data(self, data):
-            if self.__lastTag == 'h4':
-                self.__h4 = data
-
-            if self.__h4 == 'Stable version' and data[:6] == 'nginx-':
-                self.__stableVersion = data[6:]
-
-        def stableVersion(self):
-            return self.__stableVersion
+def getPublishedVersion(address):
+    response = urllib2.urlopen(address)
 
     parser = NginxDownloadHTMLParser()
     parser.feed(response.read())
@@ -86,17 +75,27 @@ def main():
     if not stableVersion:
         raise Exception('Could not get the stable version.')
 
-    print('Current version ' + currentVersion + ' stable version: ' + stableVersion)
+    return stableVersion
 
-    if currentVersion != stableVersion:
-        return False
-    return True
+class NginxDownloadHTMLParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.__lastTag = None
+        self.__h4 = None
+        self.__stableVersion = None
+
+    def handle_starttag(self, tag, attrs):
+        self.__lastTag = tag
+
+    def handle_data(self, data):
+        if self.__lastTag == 'h4':
+            self.__h4 = data
+
+        if self.__h4 == 'Stable version' and data[:6] == 'nginx-':
+            self.__stableVersion = data[6:]
+
+    def stableVersion(self):
+        return self.__stableVersion
 
 if __name__ == '__main__':
-    try:
-        if main():
-            sys.exit(0)
-        sys.exit(1)
-    except Exception as exception:
-        print('Exception: ' + str(exception))
-        sys.exit(3)
+    main()
