@@ -4,6 +4,20 @@ by use. Some of them copied to here from other sources for convenience.
 
 ## Usage
 
+#### checkNginxVersion.py
+
+Gets the Nginx server version from the Server header. Searches for the minor version on the Nginx Download page.
+Exits with warning code if the version does not match. Exits with problem code if the versions could not found.
+Never exists with critical code.
+
+Nginx `server_tokens` configuration should not be set to `off` on the given location.
+
+```
+./checkNginxVersion.py [HTTP address]
+```
+
+[1] http://nginx.org/en/download.html
+
 #### checkMySQLProcesslist.sh
 
 Executes just one "show processlist" query on the server. Parse the output.
@@ -138,15 +152,14 @@ Exit statuses:
 
 Retrieved from the Nagios Exchange [1] on 2013-11-27.
 
-#### check_postfix_queue.sh
-
-Retrieved from the Nagios Exchange [2] on 2014-06-12. Modified to be used for a remote server using SSH. Suffix added
-to its name.
-
-
 [1] http://exchange.nagios.org/directory/Plugins/Network-Protocols/LDAP/Openldap-Syncrepl/details
 
-[2] http://exchange.nagios.org/directory/Plugins/Email-and-Groupware/Postfix/check_postfix_queue/details
+#### check_postfix_queue.sh
+
+Retrieved from the Nagios Exchange [1] on 2014-06-12. Modified to be used for a remote server using SSH. Suffix added
+to its name.
+
+[1] http://exchange.nagios.org/directory/Plugins/Email-and-Groupware/Postfix/check_postfix_queue/details
 
 
 ## License
@@ -155,4 +168,3 @@ The scripts developed by us are released under the ISC License. The ISC License 
 the Open Source Initiative [1]. Licenses are included to the scripts.
 
 [1] http://opensource.org/licenses/isc-license.txt
-
