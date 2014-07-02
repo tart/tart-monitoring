@@ -17,7 +17,7 @@
 
 import sys
 import urllib2
-from HTMLParser import HTMLParser
+import re
 
 def main():
     if len(sys.argv) < 2:
@@ -27,12 +27,19 @@ def main():
 
     try:
         serverVersion = getServerVersion(sys.argv[1])
-        publishedVersion = getPublishedVersion('http://nginx.org/en/download.html')
     except Exception as exception:
-        print('Exception: ' + str(exception))
+        print('Cannot get the server version: ' + str(exception))
         sys.exit(3)
 
-    print('Current version ' + serverVersion + ' stable version: ' + publishedVersion)
+    majorVersion = serverVersion.rsplit('.', 1)[0]
+
+    try:
+        publishedVersion = getPublishedVersion('http://nginx.org/en/download.html', majorVersion)
+    except Exception as exception:
+        print('Cannot get the published version: ' + str(exception))
+        sys.exit(3)
+
+    print('Server version: ' + serverVersion + ' published version: ' + publishedVersion)
 
     if serverVersion != publishedVersion:
         sys.exit(1)
@@ -65,37 +72,15 @@ def selectHeader(headers, key):
         if header.startswith(key + ':'):
             return header[(len(key) + 1):]
 
-def getPublishedVersion(address):
+def getPublishedVersion(address, majorVersion):
     response = urllib2.urlopen(address)
 
-    parser = NginxDownloadHTMLParser()
-    parser.feed(response.read())
-    stableVersion = parser.stableVersion()
+    versions = re.findall('nginx-' + majorVersion + '.[0-99]', response.read())  
 
-    if not stableVersion:
-        raise Exception('Could not get the stable version.')
+    if not versions:
+        raise Exception('Page does not include the major version.')
 
-    return stableVersion
-
-class NginxDownloadHTMLParser(HTMLParser):
-    def __init__(self):
-        HTMLParser.__init__(self)
-        self.__lastTag = None
-        self.__h4 = None
-        self.__stableVersion = None
-
-    def handle_starttag(self, tag, attrs):
-        self.__lastTag = tag
-
-    def handle_data(self, data):
-        if self.__lastTag == 'h4':
-            self.__h4 = data
-
-        if self.__h4 == 'Stable version' and data[:6] == 'nginx-':
-            self.__stableVersion = data[6:]
-
-    def stableVersion(self):
-        return self.__stableVersion
+    return versions[0].split('-')[1]
 
 if __name__ == '__main__':
     main()
