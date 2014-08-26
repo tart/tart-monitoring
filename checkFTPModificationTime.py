@@ -48,7 +48,7 @@ def timeoutRaiser (signum, frame):
         raise Timeout
 
 class Checker:
-    '''Connect to the given SSH FTP server. Check the motidification times of files on the given directory. Return
+    '''Connect to the given SSH FTP server. Check the modification times of files on the given directory. Return
     warning or critical if the given limits exceeded.'''
 
     def parseArguments (self):

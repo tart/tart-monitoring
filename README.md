@@ -13,7 +13,19 @@ on the scripts.
 Scripts are explained below in alphabetical order.
 
 
-## checkMySQLProcesslist.sh
+## checkCronJobRunningTime.py
+
+Checks a given log file to monitor a scheduled job runs as expected.  Currently, it is a half-baked script.  It is not
+really configurable and suitable for general use.
+
+
+## checkFTPModificationTime.py
+
+Connects to an SSH FTP server and checks the modification times of the files on a given directory.  Exits with
+the warning code, 1, or the critical code, 2, if the least time exceeds given limits.
+
+
+# checkMySQLProcesslist.sh
 
 Executes just one "show processlist" query on the server.  Parses the output.
 
