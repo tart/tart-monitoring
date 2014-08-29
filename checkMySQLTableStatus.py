@@ -91,7 +91,7 @@ class Database:
     def yieldTables (self, attributes):
         '''Iterate tables with selected attributes.'''
         for schemaRow in self.select ('Show schemas'):
-            for tableRow in self.select ('Show table status in ' + schemaRow [0] + ' where Engine is not null'):
+            for tableRow in self.select ('Show table status in `' + schemaRow [0] + '` where Engine is not null'):
                 attributeValues = {}
                 for attribute in attributes:
                     columnPosition = self.getColumnPosition (attribute)
